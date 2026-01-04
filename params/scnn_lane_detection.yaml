@@ -15,6 +15,6 @@ scnn_lane_detection_node:
     width: 952
     num_classes: 5
     num_lanes: 4
-    exist_threshold: 0.35
+    exist_threshold: 0.5
     warmup_iterations: 2  # Warmup iterations for better performance
     log_level: 3  # 0: Internal Error, 1: Error, 2: Warning, 3: Info, 4: Verbose

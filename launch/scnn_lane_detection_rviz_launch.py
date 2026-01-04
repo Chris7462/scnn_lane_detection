@@ -20,7 +20,7 @@ def generate_launch_description():
 
     bag_exec = ExecuteProcess(
         cmd=['ros2', 'bag', 'play', '-r', '1.0',
-             '/data/kitti/raw/2011_09_30_drive_0018_sync_bag', '--clock']
+             '/data/kitti/raw/2011_10_03_drive_0042_sync_bag', '--clock']
     )
 
     scnn_lane_detection_launch = IncludeLaunchDescription(

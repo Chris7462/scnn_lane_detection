@@ -259,7 +259,7 @@ void SCNNLaneDetection::timer_callback()
     if (!result.seg_pred.empty()) {
       // Create overlay
       cv::Mat overlay = scnn_trt_backend::utils::create_overlay(
-        cv_ptr->image, result.seg_pred, 0.5f);
+        cv_ptr->image, result.seg_pred);
 
       // Publish results
       if (lane_pub_->get_subscription_count() > 0) {

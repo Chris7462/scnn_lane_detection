@@ -1,0 +1,20 @@
+scnn_lane_detection_node:
+  ros__parameters:
+    # ROS parameters for the SCNN lane detection node
+    input_topic: "kitti/camera/color/left/image_raw"
+    output_topic: "scnn_lane_detection"
+    output_overlay_topic: "scnn_lane_detection_overlay"
+    output_exist_topic: "scnn_lane_existence"
+    queue_size: 10  # QoS parameter
+    processing_frequency: 50.0  # Hz
+    max_processing_queue_size: 3  # Maximum number of queue
+    # Model parameters
+    engine_package: "scnn_trt_backend"
+    engine_filename: "scnn_vgg16_288x952.engine"
+    height: 288
+    width: 952
+    num_classes: 5
+    num_lanes: 4
+    exist_threshold: 0.5
+    warmup_iterations: 2  # Warmup iterations for better performance
+    log_level: 3  # 0: Internal Error, 1: Error, 2: Warning, 3: Info, 4: Verbose

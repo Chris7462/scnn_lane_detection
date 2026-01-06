@@ -179,7 +179,7 @@ void SCNNLaneDetection::initialize_ros_components()
   // Create publishers
   lane_pub_ = create_publisher<sensor_msgs::msg::Image>(output_topic_, image_qos);
   lane_overlay_pub_ = create_publisher<sensor_msgs::msg::Image>(output_overlay_topic_, image_qos);
-  exist_pub_ = create_publisher<std_msgs::msg::Float32MultiArray>(output_exist_topic_, image_qos);
+  exist_pub_ = create_publisher<kitti_msgs::msg::LaneExistence>(output_exist_topic_, image_qos);
 
   // Create timer for processing at specified frequency
   auto timer_period = std::chrono::duration<double>(1.0 / processing_frequency_);
@@ -373,24 +373,13 @@ void SCNNLaneDetection::publish_lane_existence(
   const std_msgs::msg::Header & header)
 {
   try {
-    std_msgs::msg::Float32MultiArray msg;
+    kitti_msgs::msg::LaneExistence msg;
 
-    // Set up layout (optional but good practice)
-    msg.layout.dim.push_back(std_msgs::msg::MultiArrayDimension());
-    msg.layout.dim[0].label = "lanes";
-    msg.layout.dim[0].size = 4;
-    msg.layout.dim[0].stride = 4;
-    msg.layout.data_offset = 0;
-
-    // Copy data
-    msg.data.assign(exist_pred.begin(), exist_pred.end());
+    msg.header = header;
+    msg.probabilities = exist_pred;
 
     // Publish
     exist_pub_->publish(msg);
-
-    // Note: Float32MultiArray doesn't have a header field
-    // If timestamp synchronization is needed, consider using a custom message
-    (void)header;  // Suppress unused parameter warning
 
   } catch (const std::exception & e) {
     RCLCPP_ERROR(get_logger(), "Exception during lane existence publishing: %s", e.what());

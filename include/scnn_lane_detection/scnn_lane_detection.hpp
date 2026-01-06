@@ -11,8 +11,10 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/callback_group.hpp>
 #include <std_msgs/msg/header.hpp>
-#include <std_msgs/msg/float32_multi_array.hpp>
 #include <sensor_msgs/msg/image.hpp>
+
+// local created ROS message
+#include "kitti_msgs/msg/lane_existence.hpp"
 
 // OpenCV header
 #include <opencv2/core.hpp>
@@ -107,7 +109,7 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr img_sub_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr lane_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr lane_overlay_pub_;
-  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr exist_pub_;
+  rclcpp::Publisher<kitti_msgs::msg::LaneExistence>::SharedPtr exist_pub_;
   rclcpp::TimerBase::SharedPtr timer_;
 
   // Callback groups for parallel execution

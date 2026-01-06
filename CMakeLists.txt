@@ -16,6 +16,9 @@ find_package(ament_index_cpp REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(scnn_trt_backend REQUIRED)
 
+# local created package
+find_package(kitti_msgs REQUIRED)
+
 add_executable(scnn_lane_detection_node
   src/scnn_lane_detection_node.cpp
   src/scnn_lane_detection.cpp)
@@ -30,7 +33,8 @@ ament_target_dependencies(scnn_lane_detection_node PUBLIC
   std_msgs
   ament_index_cpp
   cv_bridge
-  scnn_trt_backend)
+  scnn_trt_backend
+  kitti_msgs)
 
 target_compile_features(scnn_lane_detection_node PUBLIC cxx_std_17)  # Require C++17
 

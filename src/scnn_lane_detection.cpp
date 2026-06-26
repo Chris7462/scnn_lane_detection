@@ -8,7 +8,7 @@
 #include <opencv2/highgui.hpp>
 
 // ROS header
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <ament_index_cpp/get_package_share_path.hpp>
 #include <cv_bridge/cv_bridge.hpp>
 
 // Local header
@@ -114,7 +114,7 @@ bool SCNNLaneDetection::initialize_parameters()
     }
 
     // Construct engine file path
-    fs::path package_path = ament_index_cpp::get_package_share_directory(engine_package);
+    fs::path package_path = ament_index_cpp::get_package_share_path(engine_package);
     engine_path_ = package_path / "engines" / engine_filename;
 
     RCLCPP_INFO(get_logger(),
@@ -240,7 +240,8 @@ void SCNNLaneDetection::timer_callback()
 
   try {
     // Convert ROS image to OpenCV format
-    cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+    cv_bridge::CvImageConstPtr cv_ptr =
+      cv_bridge::toCvShare(msg, sensor_msgs::image_encodings::BGR8);
 
     if (!cv_ptr || cv_ptr->image.empty()) {
       RCLCPP_WARN(get_logger(), "Received empty or invalid image");

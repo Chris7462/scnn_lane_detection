@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 project(scnn_lane_detection)
 
 set(CMAKE_BUILD_TYPE Release)
@@ -27,14 +27,14 @@ target_include_directories(scnn_lane_detection_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
 
-ament_target_dependencies(scnn_lane_detection_node PUBLIC
-  rclcpp
-  sensor_msgs
-  std_msgs
-  ament_index_cpp
-  cv_bridge
-  scnn_trt_backend
-  kitti_msgs)
+target_link_libraries(scnn_lane_detection_node PUBLIC
+  rclcpp::rclcpp
+  ${sensor_msgs_TARGETS}
+  ${std_msgs_TARGETS}
+  ament_index_cpp::ament_index_cpp
+  cv_bridge::cv_bridge
+  scnn_trt_backend::scnn_trt_backend
+  ${kitti_msgs_TARGETS})
 
 target_compile_features(scnn_lane_detection_node PUBLIC cxx_std_17)  # Require C++17
 
@@ -44,7 +44,10 @@ install(TARGETS scnn_lane_detection_node
 install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME})
 
-install(DIRECTORY params
+install(DIRECTORY config
+  DESTINATION share/${PROJECT_NAME})
+
+install(DIRECTORY param
   DESTINATION share/${PROJECT_NAME})
 
 install(DIRECTORY rviz

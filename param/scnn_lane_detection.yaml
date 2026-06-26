@@ -5,9 +5,9 @@ scnn_lane_detection_node:
     output_topic: "scnn_lane_detection"
     output_overlay_topic: "scnn_lane_detection_overlay"
     output_exist_topic: "scnn_lane_existence"
-    queue_size: 10  # QoS parameter
+    queue_size: 5  # QoS parameter
     processing_frequency: 50.0  # Hz
-    max_processing_queue_size: 3  # Maximum number of queue
+    max_processing_queue_size: 3  # Maximum number of queued images
     # Model parameters
     engine_package: "scnn_trt_backend"
     engine_filename: "scnn_vgg16_288x952.engine"

@@ -27,7 +27,7 @@ target_include_directories(scnn_lane_detection_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
 
-target_link_libraries()(scnn_lane_detection_node PUBLIC
+target_link_libraries(scnn_lane_detection_node PUBLIC
   rclcpp::rclcpp
   ${sensor_msgs_TARGETS}
   ${std_msgs_TARGETS}

@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.20)
-project(scnn_lane_detection)
 
-set(CMAKE_BUILD_TYPE Release)
+project(scnn_lane_detection
+  VERSION 1.0.0
+  DESCRIPTION "SCNN lane detection ROS2 node"
+  LANGUAGES CXX)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+# Default to a Release build if the user doesn't specify one
+if(NOT CMAKE_BUILD_TYPE)
+  message(STATUS "No build type specified, defaulting to 'Release'.")
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
 endif()
 
 # find dependencies
@@ -19,26 +23,30 @@ find_package(scnn_trt_backend REQUIRED)
 # local created package
 find_package(kitti_msgs REQUIRED)
 
-add_executable(scnn_lane_detection_node
+add_executable(${PROJECT_NAME}_node
   src/scnn_lane_detection_node.cpp
   src/scnn_lane_detection.cpp)
 
-target_include_directories(scnn_lane_detection_node PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
+target_include_directories(${PROJECT_NAME}_node PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(scnn_lane_detection_node PUBLIC
-  rclcpp::rclcpp
+target_link_libraries(${PROJECT_NAME}_node PRIVATE
+  ${rclcpp_TARGETS}
   ${sensor_msgs_TARGETS}
   ${std_msgs_TARGETS}
-  ament_index_cpp::ament_index_cpp
-  cv_bridge::cv_bridge
-  scnn_trt_backend::scnn_trt_backend
-  ${kitti_msgs_TARGETS})
+  ${ament_index_cpp_TARGETS}
+  ${cv_bridge_TARGETS}
+  ${kitti_msgs_TARGETS}
+  ${scnn_trt_backend_TARGETS})
 
-target_compile_features(scnn_lane_detection_node PUBLIC cxx_std_17)  # Require C++17
+target_compile_features(${PROJECT_NAME}_node PRIVATE cxx_std_17)  # Require C++17
 
-install(TARGETS scnn_lane_detection_node
+target_compile_options(${PROJECT_NAME}_node PRIVATE
+  -Wall
+  -Wextra
+  -Wpedantic)
+
+install(TARGETS ${PROJECT_NAME}_node
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch

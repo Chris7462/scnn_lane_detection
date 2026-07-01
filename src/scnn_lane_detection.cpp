@@ -218,8 +218,9 @@ void SCNNLaneDetection::image_callback(const sensor_msgs::msg::Image::SharedPtr 
 
 void SCNNLaneDetection::timer_callback()
 {
-  // Skip if already processing or no subscribers
-  if (processing_in_progress_.load()) {
+  // Atomically claim the "processing" slot
+  bool expected = false;
+  if (!processing_in_progress_.compare_exchange_strong(expected, true)) {
     return;
   }
 
@@ -229,14 +230,12 @@ void SCNNLaneDetection::timer_callback()
   {
     std::lock_guard<std::mutex> lock(mtx_);
     if (img_buff_.empty()) {
+      processing_in_progress_.store(false);
       return;
     }
     msg = img_buff_.front();
     img_buff_.pop();
   }
-
-  // Set processing flag
-  processing_in_progress_.store(true);
 
   try {
     // Convert ROS image to OpenCV format

@@ -78,7 +78,7 @@ bool SCNNLaneDetection::initialize_parameters()
     config_.num_lanes = declare_parameter<int>("num_lanes", 4);
     config_.exist_threshold = declare_parameter<double>("exist_threshold", 0.5);
     config_.warmup_iterations = declare_parameter<int>("warmup_iterations", 2);
-    config_.log_level = static_cast<scnn_trt_backend::Logger::Severity>(
+    config_.log_level = static_cast<scnn_trt_backend::LogLevel>(
       declare_parameter<int>("log_level", 3));
 
     // Validation

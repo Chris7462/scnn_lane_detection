@@ -54,68 +54,73 @@ bool SCNNLaneDetection::initialize_parameters()
 {
   try {
     // ROS2 parameters
-    input_topic_ = declare_parameter("input_topic",
-      std::string("kitti/camera/color/left/image_raw"));
+    input_topic_ = declare_parameter("input_topic", std::string(""));
+    if (input_topic_.empty()) {
+      RCLCPP_ERROR(get_logger(),
+        "input_topic is empty. This must be remapped by the launch file "
+        "(e.g. input_topic:=carla/hero/camera/image_raw) - refusing to start "
+        "with an unspecified input source.");
+      return false;
+    }
+
     output_topic_ = declare_parameter("output_topic", std::string("scnn_lane_detection"));
     output_overlay_topic_ = declare_parameter("output_topic_overlay",
       std::string("scnn_lane_detection_overlay"));
     output_exist_topic_ = declare_parameter("output_exist_topic",
       std::string("scnn_lane_existence"));
     queue_size_ = declare_parameter<int>("queue_size", 10);
+
     processing_frequency_ = declare_parameter<double>("processing_frequency", 40.0);
-
-    // Processing queue parameter - small bounded queue for burst handling
-    max_processing_queue_size_ = declare_parameter<int>("max_processing_queue_size", 3);
-
-    // Declare and get parameters with validation
-    std::string engine_package = declare_parameter("engine_package",
-      std::string("scnn_trt_backend"));
-    std::string engine_filename = declare_parameter("engine_filename",
-      std::string("scnn_vgg16_288x952.engine"));
-    config_.height = declare_parameter<int>("height", 288);
-    config_.width = declare_parameter<int>("width", 952);
-    config_.num_classes = declare_parameter<int>("num_classes", 5);
-    config_.num_lanes = declare_parameter<int>("num_lanes", 4);
-    config_.exist_threshold = declare_parameter<double>("exist_threshold", 0.5);
-    config_.warmup_iterations = declare_parameter<int>("warmup_iterations", 2);
-    config_.log_level = static_cast<scnn_trt_backend::LogLevel>(
-      declare_parameter<int>("log_level", 3));
-
-    // Validation
-    if (engine_filename.empty()) {
-      RCLCPP_ERROR(get_logger(), "Engine filename cannot be empty");
-      return false;
-    }
-
-    if (config_.width <= 0 || config_.height <= 0) {
-      RCLCPP_ERROR(get_logger(), "Invalid image dimensions: %dx%d", config_.width, config_.height);
-      return false;
-    }
-
-    if (config_.num_classes <= 0) {
-      RCLCPP_ERROR(get_logger(), "Invalid number of classes: %d", config_.num_classes);
-      return false;
-    }
-
-    if (config_.num_lanes <= 0) {
-      RCLCPP_ERROR(get_logger(), "Invalid number of lanes: %d", config_.num_lanes);
-      return false;
-    }
-
     if (processing_frequency_ <= 0) {
       RCLCPP_ERROR(get_logger(), "Invalid processing frequency: %.2f Hz", processing_frequency_);
       return false;
     }
 
+    // Processing queue parameter - small bounded queue for burst handling
+    max_processing_queue_size_ = declare_parameter<int>("max_processing_queue_size", 3);
     if (max_processing_queue_size_ <= 0 || max_processing_queue_size_ > 10) {
       RCLCPP_ERROR(get_logger(), "Invalid max processing queue size: %d (should be 1-10)",
         max_processing_queue_size_);
       return false;
     }
 
+    // Declare and get parameters with validation
+    std::string engine_package = declare_parameter("engine_package",
+      std::string("scnn_trt_backend"));
+    std::string engine_filename = declare_parameter("engine_filename",
+      std::string("scnn_vgg16_288x952.engine"));
+    if (engine_filename.empty()) {
+      RCLCPP_ERROR(get_logger(), "Engine filename cannot be empty");
+      return false;
+    }
+
     // Construct engine file path
     fs::path package_path = ament_index_cpp::get_package_share_path(engine_package);
     engine_path_ = package_path / "engines" / engine_filename;
+
+    config_.height = declare_parameter<int>("height", 288);
+    config_.width = declare_parameter<int>("width", 952);
+    if (config_.width <= 0 || config_.height <= 0) {
+      RCLCPP_ERROR(get_logger(), "Invalid image dimensions: %dx%d", config_.width, config_.height);
+      return false;
+    }
+
+    config_.num_classes = declare_parameter<int>("num_classes", 5);
+    if (config_.num_classes <= 0) {
+      RCLCPP_ERROR(get_logger(), "Invalid number of classes: %d", config_.num_classes);
+      return false;
+    }
+
+    config_.num_lanes = declare_parameter<int>("num_lanes", 4);
+    if (config_.num_lanes <= 0) {
+      RCLCPP_ERROR(get_logger(), "Invalid number of lanes: %d", config_.num_lanes);
+      return false;
+    }
+
+    config_.exist_threshold = declare_parameter<double>("exist_threshold", 0.5);
+    config_.warmup_iterations = declare_parameter<int>("warmup_iterations", 2);
+    config_.log_level = static_cast<scnn_trt_backend::LogLevel>(
+      declare_parameter<int>("log_level", 3));
 
     RCLCPP_INFO(get_logger(),
       "Parameters initialized - Engine: %s, Classes: %d, Lanes: %d, Height: %d, Width: %d",
@@ -190,7 +195,8 @@ void SCNNLaneDetection::initialize_ros_components()
   );
 
   RCLCPP_INFO(get_logger(), "ROS components initialized with separate callback groups");
-  RCLCPP_INFO(get_logger(), "Input: %s, Output: %s, Frequency: %.1f Hz",
+  RCLCPP_INFO(get_logger(),
+    "Input: %s, Output: %s, Frequency: %.1f Hz",
     input_topic_.c_str(), output_topic_.c_str(), processing_frequency_);
 }
 

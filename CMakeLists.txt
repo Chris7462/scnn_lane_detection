@@ -21,7 +21,7 @@ find_package(cv_bridge REQUIRED)
 find_package(scnn_trt_backend REQUIRED)
 
 # local created package
-find_package(kitti_msgs REQUIRED)
+find_package(av_msgs REQUIRED)
 
 add_executable(${PROJECT_NAME}_node
   src/scnn_lane_detection_node.cpp
@@ -36,7 +36,7 @@ target_link_libraries(${PROJECT_NAME}_node PRIVATE
   ${std_msgs_TARGETS}
   ${ament_index_cpp_TARGETS}
   ${cv_bridge_TARGETS}
-  ${kitti_msgs_TARGETS}
+  ${av_msgs_TARGETS}
   ${scnn_trt_backend_TARGETS})
 
 target_compile_features(${PROJECT_NAME}_node PRIVATE cxx_std_17)  # Require C++17

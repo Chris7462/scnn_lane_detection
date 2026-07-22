@@ -184,7 +184,7 @@ void SCNNLaneDetection::initialize_ros_components()
   // Create publishers
   lane_pub_ = create_publisher<sensor_msgs::msg::Image>(output_topic_, image_qos);
   lane_overlay_pub_ = create_publisher<sensor_msgs::msg::Image>(output_overlay_topic_, image_qos);
-  exist_pub_ = create_publisher<kitti_msgs::msg::LaneExistence>(output_exist_topic_, image_qos);
+  exist_pub_ = create_publisher<av_msgs::msg::LaneExistence>(output_exist_topic_, image_qos);
 
   // Create timer for processing at specified frequency
   auto timer_period = std::chrono::duration<double>(1.0 / processing_frequency_);
@@ -374,7 +374,7 @@ void SCNNLaneDetection::publish_lane_existence(
   const std_msgs::msg::Header & header)
 {
   try {
-    kitti_msgs::msg::LaneExistence msg;
+    av_msgs::msg::LaneExistence msg;
 
     msg.header = header;
     msg.probabilities = exist_pred;
